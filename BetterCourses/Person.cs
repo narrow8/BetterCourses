@@ -11,5 +11,13 @@ namespace BetterCourses
         public string faceId;
         public FaceRectangle facerectangle;
         public FaceAttributes faceAttributes;
+
+        public Boolean getAttention()
+        {
+            if (faceAttributes.emotion.happiness > faceAttributes.emotion.sadness)
+                return true;
+            return false;
+
+        }
     }
 }

@@ -25,6 +25,8 @@ namespace BetterCourses
         static string emotion1 = "";
         static string emotion2 = "";
 
+        static double percentage = 0;
+
         Timer timer = new Timer();
 
         public Form1()
@@ -36,7 +38,7 @@ namespace BetterCourses
             {
                 try
                 {
-                    textBox6.Text = emotion1;
+                    textBox6.Text = percentage.ToString();
                 }
                 catch { }
             };
@@ -86,71 +88,13 @@ namespace BetterCourses
 
 
 
-                Person[] faces = JsonConvert.DeserializeObject<Person[]>(result);
+                Person[] students = JsonConvert.DeserializeObject<Person[]>(result);
 
-                //Console.WriteLine(faces[0].faceId);
+				Class room = new Class(students);
 
                 string[] emotions = result.Split(new String[] { "\"emotion\":" }, StringSplitOptions.None)[1].Split('}')[0].Split(':');
-                double max1 = 0.0;
-                double max2 = 0.0;
 
-                foreach (var face in faces)
-                { 
-                    
-                    if (face.faceAttributes.emotion.neutral >= max1)
-                    {
-                        max2 = max1;
-                        max1 = face.faceAttributes.emotion.neutral;
-
-                        emotion2 = emotion1;
-                        emotion1 = "neutral";
-                    }
-                    else
-                    {
-                        if (face.faceAttributes.emotion.neutral >= max2)
-                        {
-                            max2 = face.faceAttributes.emotion.neutral;
-
-                            emotion2 = "neutral";
-                        }
-                    }
-
-                    if (face.faceAttributes.emotion.happiness >= max1)
-                    {
-                        max2 = max1;
-                        max1 = face.faceAttributes.emotion.happiness;
-
-                        emotion2 = emotion1;
-                        emotion1 = "happiness";
-                    }
-                    else
-                    {
-                        if (face.faceAttributes.emotion.happiness >= max2)
-                        {
-                            max2 = face.faceAttributes.emotion.happiness;
-
-                            emotion2 = "happiness";
-                        }
-                    }
-
-                    if (face.faceAttributes.emotion.sadness >= max1)
-                    {
-                        max2 = max1;
-                        max1 = face.faceAttributes.emotion.sadness;
-
-                        emotion2 = emotion1;
-                        emotion1 = "sadness";
-                    }
-                    else
-                    {
-                        if (face.faceAttributes.emotion.sadness >= max2)
-                        {
-                            max2 = face.faceAttributes.emotion.sadness;
-
-                            emotion2 = "sadness";
-                        }
-                    }
-                }
+                percentage = room.getFocus() * 100;
             }
         }
 

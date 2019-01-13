@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Class.cs" />
     <Compile Include="Emotion.cs" />
     <Compile Include="FaceAttributes.cs" />
     <Compile Include="FaceRectangle.cs" />
