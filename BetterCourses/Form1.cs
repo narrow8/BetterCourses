@@ -94,24 +94,60 @@ namespace BetterCourses
                 double max1 = 0.0;
                 double max2 = 0.0;
 
-                for (int i = 0; i < emotions.Length - 1; i++)
-                {
-                    Console.WriteLine(emotions[i]);
-                    if (Convert.ToDouble(emotions[i + 1].Split(',')[0]) >= max1)
+                foreach (var face in faces)
+                { 
+                    
+                    if (face.faceAttributes.emotion.neutral >= max1)
                     {
                         max2 = max1;
-                        max1 = Convert.ToDouble(emotions[i + 1].Split(',')[0]);
+                        max1 = face.faceAttributes.emotion.neutral;
 
                         emotion2 = emotion1;
-                        emotion1 = emotions[i].Split('\"')[1];
+                        emotion1 = "neutral";
                     }
                     else
                     {
-                        if (Convert.ToDouble(emotions[i + 1].Split(',')[0]) >= max2)
+                        if (face.faceAttributes.emotion.neutral >= max2)
                         {
-                            max2 = Convert.ToDouble(emotions[i + 1].Split(',')[0]);
+                            max2 = face.faceAttributes.emotion.neutral;
 
-                            emotion2 = emotions[i].Split('\"')[1];
+                            emotion2 = "neutral";
+                        }
+                    }
+
+                    if (face.faceAttributes.emotion.happiness >= max1)
+                    {
+                        max2 = max1;
+                        max1 = face.faceAttributes.emotion.happiness;
+
+                        emotion2 = emotion1;
+                        emotion1 = "happiness";
+                    }
+                    else
+                    {
+                        if (face.faceAttributes.emotion.happiness >= max2)
+                        {
+                            max2 = face.faceAttributes.emotion.happiness;
+
+                            emotion2 = "happiness";
+                        }
+                    }
+
+                    if (face.faceAttributes.emotion.sadness >= max1)
+                    {
+                        max2 = max1;
+                        max1 = face.faceAttributes.emotion.sadness;
+
+                        emotion2 = emotion1;
+                        emotion1 = "sadness";
+                    }
+                    else
+                    {
+                        if (face.faceAttributes.emotion.sadness >= max2)
+                        {
+                            max2 = face.faceAttributes.emotion.sadness;
+
+                            emotion2 = "sadness";
                         }
                     }
                 }
