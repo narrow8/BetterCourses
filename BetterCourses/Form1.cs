@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
+using Microsoft.CognitiveServices.Speech;
 
 namespace BetterCourses
 {
@@ -20,6 +16,7 @@ namespace BetterCourses
         const string subscriptionKey = "bbeacdccdcbc474787bee03d9e8096bf";
         const string uriBase =
          "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect";
+
         static string result = "";
 
         static string emotion1 = "";
@@ -39,22 +36,49 @@ namespace BetterCourses
                 try
                 {
                     textBox6.Text = percentage.ToString();
+                    
                 }
                 catch { }
             };
+        }
 
-            string imageFilePath = "";
+        static async void MakeTranscript()
+        {
+            var config = SpeechConfig.FromSubscription("2561aa0b21004e12a032cce1c01cd928"
+            , "https://westeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken");
 
-            OpenFileDialog fileDialog = new OpenFileDialog();
-
-            if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            using (var recognizer = new SpeechRecognizer(config))
             {
-                imageFilePath = fileDialog.FileName;
+                // Starts recognizing.
+                Console.WriteLine("Say something...");
+
+                // Performs recognition. RecognizeOnceAsync() returns when the first utterance has been recognized,
+                // so it is suitable only for single shot recognition like command or query. For long-running
+                // recognition, use StartContinuousRecognitionAsync() instead.
+                var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(true);
+
+                // Checks result.
+                if (result.Reason == ResultReason.RecognizedSpeech)
+                {
+                    Console.WriteLine($"RECOGNIZED: Text={result.Text}");
+                }
+                else if (result.Reason == ResultReason.NoMatch)
+                {
+                    Console.WriteLine($"NOMATCH: Speech could not be recognized.");
+                }
+                else if (result.Reason == ResultReason.Canceled)
+                {
+                    var cancellation = CancellationDetails.FromResult(result);
+                    Console.WriteLine($"CANCELED: Reason={cancellation.Reason}");
+
+                    if (cancellation.Reason == CancellationReason.Error)
+                    {
+                        Console.WriteLine($"CANCELED: ErrorCode={cancellation.ErrorCode}");
+                        Console.WriteLine($"CANCELED: ErrorDetails={cancellation.ErrorDetails}");
+                        Console.WriteLine($"CANCELED: Did you update the subscription info?");
+                    }
+                }
             }
-
-            pictureBox1.Image = new Bitmap(imageFilePath);
-
-            MakeAnalysisRequest(imageFilePath);
         }
 
         static async void MakeAnalysisRequest(string imageFilePath)
@@ -170,9 +194,25 @@ namespace BetterCourses
             return sb.ToString().Trim();
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void button1_Click_1(object sender, EventArgs e)
         {
+            string imageFilePath = "";
 
+            OpenFileDialog fileDialog = new OpenFileDialog();
+
+            if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                imageFilePath = fileDialog.FileName;
+            }
+
+            pictureBox1.Image = new Bitmap(imageFilePath);
+
+            MakeAnalysisRequest(imageFilePath);
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            MakeTranscript();
         }
     }
 }
