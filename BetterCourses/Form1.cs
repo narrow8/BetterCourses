@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.CognitiveServices.Speech;
+using System.Threading;
 
 namespace BetterCourses
 {
@@ -24,11 +25,11 @@ namespace BetterCourses
 
         static double percentage = 0;
 
-        Timer timer = new Timer();
-
         public Form1()
         {
             InitializeComponent();
+
+            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
             timer.Enabled = true;
             timer.Tick += delegate
@@ -42,7 +43,7 @@ namespace BetterCourses
             };
         }
 
-        static async void MakeTranscript()
+        async void MakeTranscript()
         {
             var config = SpeechConfig.FromSubscription("0be2c48d5bf14f51b98a74bcc5e385bf"
             , "westeurope");
@@ -52,10 +53,14 @@ namespace BetterCourses
                 // Starts recognizing.
                 Console.WriteLine("Say something...");
 
-                // Performs recognition. RecognizeOnceAsync() returns when the first utterance has been recognized,
-                // so it is suitable only for single shot recognition like command or query. For long-running
-                // recognition, use StartContinuousRecognitionAsync() instead.
                 var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
+
+                if (label1.InvokeRequired)
+                {
+                    label1.Invoke(new Action(() => label1.Text = result.Text));
+                }
+                else
+                    label1.Text = result.Text;
 
                 // Checks result.
                 if (result.Reason == ResultReason.RecognizedSpeech)
