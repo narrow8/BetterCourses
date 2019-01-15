@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using Newtonsoft.Json;
 using Microsoft.CognitiveServices.Speech;
 using System.Threading;
+using Emgu.CV;
 
 namespace BetterCourses
 {
@@ -42,7 +43,12 @@ namespace BetterCourses
 
                 if (time % interval == 0)
                 {
-                    MakeAnalysisRequest(photos[time / interval]);
+                    VideoCapture capture = new VideoCapture(); //create a camera capture
+                    Bitmap image = capture.QueryFrame().Bitmap; //take a picture
+                    image.Save("cc0.bmp");
+                    pictureBox1.Image = image;
+
+                    MakeAnalysisRequest("cc0.bmp");
                 }
 
                 try
@@ -141,7 +147,7 @@ namespace BetterCourses
                     else
                         textBox1.Text += "Attention rate: " + (room.getFocus() * 100).ToString() + Environment.NewLine;
                 }
-           
+
             }
             catch { }
         }
@@ -158,6 +164,20 @@ namespace BetterCourses
                 }
             }
             catch { return null; }
+        }
+
+        private static void SaveToFile(string List)
+        {
+            var saveFileDialog1 = new SaveFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Personal),
+                Filter = string.Format("{0}Text files (*.txt)|*.txt|All files (*.*)|*.*", "ARG0"),
+                RestoreDirectory = true,
+                ShowHelp = true,
+                CheckFileExists = false
+            };
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                File.WriteAllText(saveFileDialog1.FileName, List);
         }
 
         static string JsonPrettyPrint(string json)
@@ -225,20 +245,20 @@ namespace BetterCourses
         private void button1_Click_1(object sender, EventArgs e)
         {
             ////
-            var fbd = new FolderBrowserDialog();
-            DialogResult result = fbd.ShowDialog();
+            //var fbd = new FolderBrowserDialog();
+           // DialogResult result = fbd.ShowDialog();
 
-            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-            {
-                DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
-                FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+            //if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            //{
+            //    DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+            //    FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
 
-                int k = 1;
-                foreach (FileInfo file in Files)
-                {
-                    photos[k++] = file.FullName;
-                }
-            }
+            //    int k = 1;
+            //    foreach (FileInfo file in Files)
+            //    {
+            //        photos[k++] = file.FullName;
+            //    }
+            //}
 
 
             /////
@@ -263,35 +283,51 @@ namespace BetterCourses
         {
             if (button2.Text == "Start")
             {
-                button2.Text = "Stop";
 
-                var fbd = new FolderBrowserDialog();
-                DialogResult result = fbd.ShowDialog();
 
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    //photos = Directory.GetFiles(fbd.SelectedPath);
 
-                    DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
-                    FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+                //var fbd = new FolderBrowserDialog();
+                //DialogResult result = fbd.ShowDialog();
 
-                    int k = 1;
-                    foreach (FileInfo file in Files)
-                    {
-                        photos[k++] = file.FullName;
-                    }
-                }
+                //if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                //{
+                //    //photos = Directory.GetFiles(fbd.SelectedPath);
+
+                //    DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+                //    FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+
+                //    int k = 1;
+                //    foreach (FileInfo file in Files)
+                //    {
+                //        photos[k++] = file.FullName;
+                //    }
+
+                //}
+
+                VideoCapture capture = new VideoCapture(); //create a camera capture
+                Bitmap image = capture.QueryFrame().Bitmap; //take a picture
+                image.Save("cc0.bmp");
+
+                pictureBox1.Image = image;
+
                 opened = true;
-                
-
+                button2.Text = "Stop";
                 timer.Enabled = true;
+
             }
 
             else
             {
+                SaveToFile(textBox1.Text);
                 timer.Enabled = false;
                 button2.Text = "Start";
+                textBox1.Text = "";
             }
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
         }
     }
 }
