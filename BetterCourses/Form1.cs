@@ -44,8 +44,8 @@ namespace BetterCourses
 
         static async void MakeTranscript()
         {
-            var config = SpeechConfig.FromSubscription("2561aa0b21004e12a032cce1c01cd928"
-            , "https://westeurope.api.cognitive.microsoft.com/sts/v1.0/issuetoken");
+            var config = SpeechConfig.FromSubscription("0be2c48d5bf14f51b98a74bcc5e385bf"
+            , "westeurope");
 
             using (var recognizer = new SpeechRecognizer(config))
             {
@@ -55,7 +55,7 @@ namespace BetterCourses
                 // Performs recognition. RecognizeOnceAsync() returns when the first utterance has been recognized,
                 // so it is suitable only for single shot recognition like command or query. For long-running
                 // recognition, use StartContinuousRecognitionAsync() instead.
-                var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(true);
+                var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
 
                 // Checks result.
                 if (result.Reason == ResultReason.RecognizedSpeech)
