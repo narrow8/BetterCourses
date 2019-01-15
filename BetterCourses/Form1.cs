@@ -265,26 +265,24 @@ namespace BetterCourses
             {
                 button2.Text = "Stop";
 
-                if (!opened)
+                var fbd = new FolderBrowserDialog();
+                DialogResult result = fbd.ShowDialog();
+
+                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
                 {
-                    var fbd = new FolderBrowserDialog();
-                    DialogResult result = fbd.ShowDialog();
+                    //photos = Directory.GetFiles(fbd.SelectedPath);
 
-                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+                    FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+
+                    int k = 1;
+                    foreach (FileInfo file in Files)
                     {
-                        //photos = Directory.GetFiles(fbd.SelectedPath);
-
-                        DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
-                        FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
-
-                        int k = 1;
-                        foreach (FileInfo file in Files)
-                        {
-                            photos[k++] = file.FullName;
-                        }
+                        photos[k++] = file.FullName;
                     }
-                    opened = true;
                 }
+                opened = true;
+                
 
                 timer.Enabled = true;
             }
@@ -294,9 +292,6 @@ namespace BetterCourses
                 timer.Enabled = false;
                 button2.Text = "Start";
             }
-
-
-            
         }
     }
 }
