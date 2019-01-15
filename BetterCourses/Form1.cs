@@ -32,7 +32,6 @@ namespace BetterCourses
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
-        // /Photos/photo{i}
         public Form1()
         {
             InitializeComponent();
@@ -43,9 +42,9 @@ namespace BetterCourses
             {
                 time++;
 
-                if (time % 5 == 0)
+                if (time % 15 == 0)
                 {
-                    MakeAnalysisRequest(photos[time / 5]);
+                    MakeAnalysisRequest(photos[time / 15]);
                 }
 
                 try
@@ -135,21 +134,27 @@ namespace BetterCourses
 
                 if (textBox1.InvokeRequired)
                 {
-                    textBox1.Invoke(new Action(() => textBox1.Text += "Attention rate: " 
-                                                             + (room.getFocus() * 100).ToString() 
+                    textBox1.Invoke(new Action(() => textBox1.Text += "Attention rate: "
+                                                             + (room.getFocus() * 100).ToString()
                                                              + Environment.NewLine));
                 }
+                else
+                    textBox1.Text += "Attention rate: " + (room.getFocus() * 100).ToString() + Environment.NewLine;
             }
         }
 
         static byte[] GetImageAsByteArray(string imageFilePath)
         {
-            using (FileStream fileStream =
-                new FileStream(imageFilePath, FileMode.Open, FileAccess.Read))
+            try
             {
-                BinaryReader binaryReader = new BinaryReader(fileStream);
-                return binaryReader.ReadBytes((int)fileStream.Length);
+                using (FileStream fileStream =
+                new FileStream(imageFilePath, FileMode.Open, FileAccess.Read))
+                {
+                    BinaryReader binaryReader = new BinaryReader(fileStream);
+                    return binaryReader.ReadBytes((int)fileStream.Length);
+                }
             }
+            catch { return null; }
         }
 
         static string JsonPrettyPrint(string json)
@@ -222,8 +227,6 @@ namespace BetterCourses
 
             if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
             {
-                //photos = Directory.GetFiles(fbd.SelectedPath);
-
                 DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
                 FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
 
