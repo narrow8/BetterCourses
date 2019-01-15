@@ -26,6 +26,7 @@ namespace BetterCourses
         string[] photos = new string[200];
 
         const int interval = 30;
+        static bool opened = false;
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
@@ -260,24 +261,42 @@ namespace BetterCourses
 
         private void button2_Click(object sender, EventArgs e)
         {
-            var fbd = new FolderBrowserDialog();
-            DialogResult result = fbd.ShowDialog();
-
-            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            if (button2.Text == "Start")
             {
-                //photos = Directory.GetFiles(fbd.SelectedPath);
+                button2.Text = "Stop";
 
-                DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
-                FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
-
-                int k = 1;
-                foreach (FileInfo file in Files)
+                if (!opened)
                 {
-                    photos[k++] = file.FullName;
+                    var fbd = new FolderBrowserDialog();
+                    DialogResult result = fbd.ShowDialog();
+
+                    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+                    {
+                        //photos = Directory.GetFiles(fbd.SelectedPath);
+
+                        DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+                        FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+
+                        int k = 1;
+                        foreach (FileInfo file in Files)
+                        {
+                            photos[k++] = file.FullName;
+                        }
+                    }
+                    opened = true;
                 }
+
+                timer.Enabled = true;
             }
 
-            timer.Enabled = true;
+            else
+            {
+                timer.Enabled = false;
+                button2.Text = "Start";
+            }
+
+
+            
         }
     }
 }
