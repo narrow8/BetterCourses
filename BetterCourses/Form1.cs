@@ -24,11 +24,15 @@ namespace BetterCourses
         static string emotion2 = "";
 
         static double percentage = 0;
-
         static bool speaking = false;
+
+        static int time = 0;
+
+        string[] photos = new string[200];
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
+        // /Photos/photo{i}
         public Form1()
         {
             InitializeComponent();
@@ -37,6 +41,13 @@ namespace BetterCourses
 
             timer.Tick += delegate
             {
+                time++;
+
+                if (time % 5 == 0)
+                {
+                    MakeAnalysisRequest(photos[time / 5]);
+                }
+
                 try
                 {
                     if (!speaking)
@@ -61,15 +72,7 @@ namespace BetterCourses
                 var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
 
                 if (textBox1.InvokeRequired)
-                {
-                    textBox1.Invoke(new Action(() => textBox1.Text += result.Text));
-                    textBox1.Invoke(new Action(() => textBox1.Text += Environment.NewLine));
-                }
-                else
-                {
-                    textBox1.Text += result.Text;
-                    textBox1.Text += '\n';
-                }
+                    textBox1.Invoke(new Action(() => textBox1.Text += result.Text + Environment.NewLine));
 
 
                 // Checks result.
@@ -130,14 +133,12 @@ namespace BetterCourses
 
 				Class room = new Class(students);
 
-                string[] emotions = result.Split(new String[] { "\"emotion\":" }, StringSplitOptions.None)[1].Split('}')[0].Split(':');
-
-                if (textBox6.InvokeRequired)
+                if (textBox1.InvokeRequired)
                 {
-                    textBox6.Invoke(new Action(() => textBox6.Text = (room.getFocus() * 100).ToString()));
+                    textBox1.Invoke(new Action(() => textBox1.Text += "Attention rate: " 
+                                                             + (room.getFocus() * 100).ToString() 
+                                                             + Environment.NewLine));
                 }
-                else
-                    textBox6.Text = (room.getFocus() * 100).ToString();
             }
         }
 
@@ -215,6 +216,28 @@ namespace BetterCourses
 
         private void button1_Click_1(object sender, EventArgs e)
         {
+            ////
+            var fbd = new FolderBrowserDialog();
+            DialogResult result = fbd.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            {
+                //photos = Directory.GetFiles(fbd.SelectedPath);
+
+                DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+                FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+
+                int k = 1;
+                foreach (FileInfo file in Files)
+                {
+                    photos[k++] = file.FullName;
+                }
+            }
+
+
+            /////
+
+            /*
             string imageFilePath = "";
 
             OpenFileDialog fileDialog = new OpenFileDialog();
@@ -227,10 +250,28 @@ namespace BetterCourses
             pictureBox1.Image = new Bitmap(imageFilePath);
 
             MakeAnalysisRequest(imageFilePath);
+            */
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
+            var fbd = new FolderBrowserDialog();
+            DialogResult result = fbd.ShowDialog();
+
+            if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            {
+                //photos = Directory.GetFiles(fbd.SelectedPath);
+
+                DirectoryInfo d = new DirectoryInfo(fbd.SelectedPath);//Assuming Test is your Folder
+                FileInfo[] Files = d.GetFiles("*.jpg"); //Getting Text files
+
+                int k = 1;
+                foreach (FileInfo file in Files)
+                {
+                    photos[k++] = file.FullName;
+                }
+            }
+
             timer.Enabled = true;
         }
     }
