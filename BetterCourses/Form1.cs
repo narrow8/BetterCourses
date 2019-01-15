@@ -25,19 +25,22 @@ namespace BetterCourses
 
         static double percentage = 0;
 
+        static bool speaking = false;
+
+        System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+
         public Form1()
         {
             InitializeComponent();
 
-            System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
+            timer.Interval = 1000;
 
-            timer.Enabled = true;
             timer.Tick += delegate
             {
                 try
                 {
-                    textBox6.Text = percentage.ToString();
-                    
+                    if (!speaking)
+                        MakeTranscript();
                 }
                 catch { }
             };
@@ -45,6 +48,8 @@ namespace BetterCourses
 
         async void MakeTranscript()
         {
+            speaking = true;
+
             var config = SpeechConfig.FromSubscription("0be2c48d5bf14f51b98a74bcc5e385bf"
             , "westeurope");
 
@@ -55,12 +60,17 @@ namespace BetterCourses
 
                 var result = await recognizer.RecognizeOnceAsync().ConfigureAwait(false);
 
-                if (label1.InvokeRequired)
+                if (textBox1.InvokeRequired)
                 {
-                    label1.Invoke(new Action(() => label1.Text = result.Text));
+                    textBox1.Invoke(new Action(() => textBox1.Text += result.Text));
+                    textBox1.Invoke(new Action(() => textBox1.Text += Environment.NewLine));
                 }
                 else
-                    label1.Text = result.Text;
+                {
+                    textBox1.Text += result.Text;
+                    textBox1.Text += '\n';
+                }
+
 
                 // Checks result.
                 if (result.Reason == ResultReason.RecognizedSpeech)
@@ -84,9 +94,10 @@ namespace BetterCourses
                     }
                 }
             }
+            speaking = false;
         }
 
-        static async void MakeAnalysisRequest(string imageFilePath)
+        async void MakeAnalysisRequest(string imageFilePath)
         {
             HttpClient client = new HttpClient();
 
@@ -115,15 +126,18 @@ namespace BetterCourses
 
                 result = contentString;
 
-
-
                 Person[] students = JsonConvert.DeserializeObject<Person[]>(result);
 
 				Class room = new Class(students);
 
                 string[] emotions = result.Split(new String[] { "\"emotion\":" }, StringSplitOptions.None)[1].Split('}')[0].Split(':');
 
-                percentage = room.getFocus() * 100;
+                if (textBox6.InvokeRequired)
+                {
+                    textBox6.Invoke(new Action(() => textBox6.Text = (room.getFocus() * 100).ToString()));
+                }
+                else
+                    textBox6.Text = (room.getFocus() * 100).ToString();
             }
         }
 
@@ -217,7 +231,7 @@ namespace BetterCourses
 
         private void button2_Click(object sender, EventArgs e)
         {
-            MakeTranscript();
+            timer.Enabled = true;
         }
     }
 }
