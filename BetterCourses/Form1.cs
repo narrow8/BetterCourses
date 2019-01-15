@@ -19,16 +19,13 @@ namespace BetterCourses
          "https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect";
 
         static string result = "";
-
-        static string emotion1 = "";
-        static string emotion2 = "";
-
-        static double percentage = 0;
         static bool speaking = false;
 
         static int time = 0;
 
         string[] photos = new string[200];
+
+        const int interval = 30;
 
         System.Windows.Forms.Timer timer = new System.Windows.Forms.Timer();
 
@@ -42,9 +39,9 @@ namespace BetterCourses
             {
                 time++;
 
-                if (time % 15 == 0)
+                if (time % interval == 0)
                 {
-                    MakeAnalysisRequest(photos[time / 15]);
+                    MakeAnalysisRequest(photos[time / interval]);
                 }
 
                 try
@@ -115,32 +112,37 @@ namespace BetterCourses
 
             byte[] byteData = GetImageAsByteArray(imageFilePath);
 
-            using (ByteArrayContent content = new ByteArrayContent(byteData))
+            try
             {
-                content.Headers.ContentType =
-                    new MediaTypeHeaderValue("application/octet-stream");
-
-                response = await client.PostAsync(uri, content);
-
-                string contentString = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine(JsonPrettyPrint(contentString));
-
-                result = contentString;
-
-                Person[] students = JsonConvert.DeserializeObject<Person[]>(result);
-
-				Class room = new Class(students);
-
-                if (textBox1.InvokeRequired)
+                using (ByteArrayContent content = new ByteArrayContent(byteData))
                 {
-                    textBox1.Invoke(new Action(() => textBox1.Text += "Attention rate: "
-                                                             + (room.getFocus() * 100).ToString()
-                                                             + Environment.NewLine));
+                    content.Headers.ContentType =
+                        new MediaTypeHeaderValue("application/octet-stream");
+
+                    response = await client.PostAsync(uri, content);
+
+                    string contentString = await response.Content.ReadAsStringAsync();
+
+                    Console.WriteLine(JsonPrettyPrint(contentString));
+
+                    result = contentString;
+
+                    Person[] students = JsonConvert.DeserializeObject<Person[]>(result);
+
+                    Class room = new Class(students);
+
+                    if (textBox1.InvokeRequired)
+                    {
+                        textBox1.Invoke(new Action(() => textBox1.Text += "Attention rate: "
+                                                                 + (room.getFocus() * 100).ToString()
+                                                                 + Environment.NewLine));
+                    }
+                    else
+                        textBox1.Text += "Attention rate: " + (room.getFocus() * 100).ToString() + Environment.NewLine;
                 }
-                else
-                    textBox1.Text += "Attention rate: " + (room.getFocus() * 100).ToString() + Environment.NewLine;
+           
             }
+            catch { }
         }
 
         static byte[] GetImageAsByteArray(string imageFilePath)
